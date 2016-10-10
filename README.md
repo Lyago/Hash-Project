@@ -21,13 +21,37 @@ Trabalho para a matéria Organização de Estrutura de Arquivos do Bacharelado e
 
 * O Programa é divido em 4 classes, sendo 2 delas para auxílio na leitura e escrita dos arquivos.
 
-  * O arquivo Endereco.java, cedido pelo professor Renato, é utilizado na leitura do arquivo cep.dat.
+  * A classe Endereco é utilizada na leitura do arquivo cep.dat.
 
-  * O arquivo Elemento.java é utilizado na leitura e na escrita do arquivo índice.
+  * A classe Elemento é utilizada na leitura e na escrita do arquivo hash.
   
   
-* O arquivo Hash.java contém os métodos da Classe Hash para a criação do índice baseada em uma função hash.
-  * O método abaixo cria um arquivo apartir da Classe Elemento, que tem como parametros: cep, endereco e proximo. O endereco é a posição do cep no arquivo cep.dat e o proximo e um ponteiro para o proximo Elemento, caso haja colisão.
+* As demais classes são as classes Main, que possui o método main, e TabelaHash que possui os métodos para a criação da hash table baseada em uma função hash.
+
+  * Na classe Main observamos o seguinte código:
+   	```java
+	  import java.io.RandomAccessFile;
+
+public class Main {
+
+	public static void main(String[] args) throws Exception 
+	{
+		long inicial = System.currentTimeMillis();
+		RandomAccessFile ceps = new RandomAccessFile("cep.dat", "r");
+		RandomAccessFile hash = new RandomAccessFile("hash.dat", "rw");
+
+		TabelaHash.criaTabela(hash, 900001);
+		TabelaHash.criaHash(ceps, hash, 900001);
+		TabelaHash.estatisticasDeHash(hash, ceps, 900001);
+		TabelaHash.consulta(22750008, hash, ceps, 900001);
+		System.out.println("Tempo decorrido: " +(System.currentTimeMillis() - inicial) + " ms");
+		ceps.close();
+		hash.close();
+	}
+
+}``` 
+
+  * O método abaixo cria um arquivo apartir da Classe ElementoHash, que tem como parametros: cep, endereco e proximo. O endereco é a posição do cep no arquivo cep.dat e o proximo e um ponteiro para o proximo Elemento, caso haja colisão.
   
 	```java
 	  public static void criaHash(RandomAccessFile f, long n) throws Exception{
@@ -182,85 +206,3 @@ Trabalho para a matéria Organização de Estrutura de Arquivos do Bacharelado e
 }	
 	```
 	Nesse trecho calculamos as probabilidade de achar o cep, a partir do número de passos e calculamos a média de passos que uma busca leva.
-	
-* No arquivo Principal.java há o método main e um menu para facilitar o uso.
-	```java
-		public static void main(String[] args) throws Exception{
-		Scanner s1 = new Scanner(System.in);
-		System.out.println("Digite 1 para criar o indice Hash de um arquivo");
-		System.out.println("Digite 2 para procurar um cep");
-		System.out.println("Digite 3 para para ver as estaticas simuladas para o hash");
-		int i = s1.nextInt();
-		int conf = 0;
-		switch (i)
-			{
-
-	```
-	O usuário recebe as mensagens na tela com as opções disponíves e escolhe a desejada, a variável conf é utulizada em um loop na opção 2 para o usário poder consultar diversos ceps.
-	```java
-		case 1:
-				System.out.println("Entre com o arquivo cep");
-				Scanner s2 = new Scanner(System.in);
-				String arq = s2.nextLine();
-				System.out.println("Entre com o nome do arquivo que sera criado");
-				Scanner s3 = new Scanner(System.in);
-				String hash = s3.nextLine();
-				RandomAccessFile r = new RandomAccessFile(arq,"r");
-				RandomAccessFile f = new RandomAccessFile(hash,"rw");
-				System.out.println("A função de Hash usada é cep % n, entre com o n desejado");
-				Scanner s4 = new Scanner(System.in);
-				long n = s4.nextLong();
-				System.out.println("Criando...");
-				Hash.criaHash(f, n);
-				Hash.criaIndice(r, f, n);
-				System.out.println("Criado com sucesso!");
-				break;				
-	```
-	Caso o usário opte pela opção 1, ele irá criar o arquivo índice baseado no arquivo cep original. Tudo é feito chamando os métodos da classe Hash.
-	```java
-		case 2:
-				System.out.println("Entre com o arquivo cep");
-				Scanner s5 = new Scanner(System.in);
-				String arq1 = s5.nextLine();
-				System.out.println("Entre com o indice hash");
-				Scanner s6 = new Scanner(System.in);
-				String hash1 = s6.nextLine();
-				System.out.println("A função de Hash usada é cep % n, entre com o n desejado");
-				Scanner s9 = new Scanner(System.in);
-				long n1 = s9.nextLong();
-				RandomAccessFile r1 = new RandomAccessFile(arq1,"r");
-				RandomAccessFile f1 = new RandomAccessFile(hash1,"rw");
-				System.out.println("Entre com o cep desejado");
-				Scanner s7 = new Scanner(System.in);
-				long cep = s7.nextLong();
-				Hash.buscaHash(f1, r1, cep,n1);
-				System.out.println("Se você desejar procurar outro cep nesse mesmo aqrquivo digite 1, se não, digite 2");
-				Scanner s8 = new Scanner(System.in);
-				conf = s8.nextInt();
-				while(conf == 1){
-					System.out.println("Entre com o cep desejado");
-					s7 = new Scanner(System.in);
-					cep = s7.nextLong();
-					Hash.buscaHash(f1, r1, cep,n1);
-					System.out.println("Se você desejar procurar outro cep nesse mesmo aqrquivo digite 1, se não, digite 2");
-					s8 = new Scanner(System.in);
-					conf = s8.nextInt();
-				}
-				break;	
-	```
-	Já a opção 2 é para a consulta de ceps fornecidos pelo usuário. A consulta é feita atrvés de um método da Classe Hash. Nessa opção há um While para o usuário consultar diversos ceps sem encerrar a aplicação.
-	```java
-		case 3:
-				System.out.println("Entre com o arquivo cep");
-				Scanner s10 = new Scanner(System.in);
-				String arq2 = s10.nextLine();
-				RandomAccessFile r2 = new RandomAccessFile(arq2,"r");
-				System.out.println("A função de Hash usada é cep % n, entre com o n desejado");
-				Scanner s11 = new Scanner(System.in);
-				long n2 = s11.nextLong();
-				Hash.estatisticasHash(r2, n2);
-		}		
-	}
-}
-	```
-	Por fim na opção 3 o usuário vê as estatísticas da função de hash utilizada, que é feita através de um método da Classe Hash.
