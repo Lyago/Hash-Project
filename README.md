@@ -4,7 +4,7 @@ Trabalho para a matéria Organização de Estrutura de Arquivos do Bacharelado e
 
 ##O Trabalho
 
-* O trabalho consiste na criação de um Hash Table(Tabela de Dispersão), gerado a partir de uma função hash, para o a arquivo cep.dat, cedido pelo professor Renato. 
+* O trabalho consiste na criação de um Hash Table (Tabela de Dispersão), gerado a partir de uma função hash, para o a arquivo cep.dat, cedido pelo professor Renato. 
 * Além de criar a tabela, o programa também deverá efetuar buscas dos ceps contindos no arquivo cep.dat, exibindo os dados completos do cep correnpondente.
 * O programa também exibe informações estatísticas sobre o hash, tal como: 
     * Número de colisões
@@ -30,63 +30,85 @@ Trabalho para a matéria Organização de Estrutura de Arquivos do Bacharelado e
 
   * Na classe Main observamos o seguinte código:
    	```java
-	  import java.io.RandomAccessFile;
+	import java.io.RandomAccessFile;
 
-public class Main {
+	public class Main {
 
-	public static void main(String[] args) throws Exception 
-	{
-		long inicial = System.currentTimeMillis();
-		RandomAccessFile ceps = new RandomAccessFile("cep.dat", "r");
-		RandomAccessFile hash = new RandomAccessFile("hash.dat", "rw");
+		public static void main(String[] args) throws Exception 
+		{
+			long inicial = System.currentTimeMillis();
+			RandomAccessFile ceps = new RandomAccessFile("cep.dat", "r");
+			RandomAccessFile hash = new RandomAccessFile("hash.dat", "rw");
 
-		TabelaHash.criaTabela(hash, 900001);
-		TabelaHash.criaHash(ceps, hash, 900001);
-		TabelaHash.estatisticasDeHash(hash, ceps, 900001);
-		TabelaHash.consulta(22750008, hash, ceps, 900001);
-		System.out.println("Tempo decorrido: " +(System.currentTimeMillis() - inicial) + " ms");
-		ceps.close();
-		hash.close();
+			TabelaHash.criaTabela(hash, 900001);
+			TabelaHash.criaHash(ceps, hash, 900001);
+			TabelaHash.estatisticasDeHash(hash, ceps, 900001);
+			TabelaHash.consulta(22750008, hash, ceps, 900001);
+			System.out.println("Tempo decorrido: " +(System.currentTimeMillis() - inicial) + " ms");
+			ceps.close();
+			hash.close();
+		}
+
 	}
+	```
 
-}``` 
+  	Neste código, são instânciados os objetos do tipo RandomAccessFile que usaremos no acesso dos arquivos em disco. Quatro métodos 	estáticos da classe TabelaHash são então chamados. 
 
-  * O método abaixo cria um arquivo apartir da Classe ElementoHash, que tem como parametros: cep, endereco e proximo. O endereco é a posição do cep no arquivo cep.dat e o proximo e um ponteiro para o proximo Elemento, caso haja colisão.
+  * O primeiro método, criaTabela(RandomAccessFile f, long n), pode ser observado abaixo 
   
 	```java
-	  public static void criaHash(RandomAccessFile f, long n) throws Exception{
-			Elemento h = new Elemento();
-			h.setCep(-1);
-			h.setEndereco(-1);
-			h.setProximo(-1);
-			for(int i = 0; i < n; i++){
-				h.escreveCep(f);				
-			}
+	 public static void  criaTabela(RandomAccessFile f, long tamanho) throws IOException{
+		System.out.println("Criando Tabela...");
+		ElementoHash h = new ElementoHash();
+		h.setCep(-1);
+		h.setEndereco(-1);
+		h.setProximo(-1);
+			
+		for(int i=0; i<tamanho; i++){
+			h.escreve(f);
 		}
+		System.out.println("Tabela criada com sucesso!");
+	}
 	```
- * Outro método presente na Classe Hash cria o índice, adicionando os ceps ao novo arquivo.
+	Um arquivo é criado apartir da classe ElementoHash, que tem como atributos: cep, endereco e proximo. O endereco é a posição 		do cep no arquivo cep.dat e o proximo e um ponteiro para o proximo Elemento, caso haja colisão. Ao final de sua execução,
+	teremos uma tabela vazia em disco.
+	
+ * O próximo método a ser chamado pelo main, criaHash(RandomAccessFile f, RandomAccessFile r, long n),  é responsável por realizar a leitura dos ceps em disco, e o processo de dispersão dos elementos pela tabela, nesse caso os ceps. 
     ```java
-    	public static void criaIndice(RandomAccessFile f, RandomAccessFile r, long n) throws Exception{
-		long i = 0;
-		long p = 0;
-		Elemento h = new Elemento();
-		Endereco e = new Endereco();
-		while(f.getFilePointer() < f.length()){
-			e.leEndereco(f);
-			p = Long.parseLong(e.getCep()) % n;
-			r.seek(p*24);
-			h.leCep(r);
-    ```
-   
-   	 Com isso percorremos o arquivo cep.dat lendo os ceps, atraves da Classe Endereco. Depois de ler o cep é aplicado a função hash,  a qual é dada pelo resto da divisão do cep por 900001 (valor fornecido pelo professor Renato). Movemos a cabeça de leitura para a posição corresposdente ao resultado da função, no arquivo índice e lemos o que há nessa posição.
- 	```java
-		if(h.getCep() == -1){
-				h.setCep(Long.parseLong(e.getCep()));
-				h.setEndereco(i);
-				h.setProximo(-1);
-				r.seek(p*24);
-				h.escreveCep(r);				
+    	public static void criaHash(RandomAccessFile c, RandomAccessFile h, long tamanho) throws IOException{
+		System.out.println("Criando Hash...");
+		long i =0;
+		
+		Endereco e = new Endereco(); 
+		ElementoHash hash = new ElementoHash();
+		
+		while(c.getFilePointer() < c.length()){
+			e.leEndereco(c);
+			long p = Long.parseLong(e.getCep())% tamanho;
+			h.seek(p*24);
+			hash.le(h);
+			if(hash.getCep() == -1){
+				hash.setCep(Long.parseLong(e.getCep()));
+				hash.setEndereco(i);
+				hash.setProximo(-1);
+				h.seek(p*24);
+				hash.escreve(h);
+			}else{
+				long prox = hash.getProximo();
+				hash.setProximo(h.length());
+				h.seek(p*24);
+				hash.escreve(h);
+				h.seek(h.length());
+				hash.setCep(Long.parseLong(e.getCep()));
+				hash.setEndereco(i);
+				hash.setProximo(prox);
+				hash.escreve(h);
+				colisoesTotal++;
 			}
+			i++;
+		}
+		System.out.println("Hash criado com sucesso!");
+	}
 	```
 	Dentro do While há um if, que se nessa posição do arquivo índice o cep for igual a -1 nós setamos os atributos de um objeto Elemento. Cep, como o cep oriundo do arquivo cep.dat. A posição damos o número do registro daquele cep no aquivo original, pois há uma leitura sequencial do arquivo. Enquanto lemos guardamos a posição em uma variável, que incrementa uma unidade ao final de cada passagem pelo While. Retornamos a cabeça de leitura a posição inical do registro, pois ao lermos um registro a cabeça de leitura estará no registro seguinte, e escrevemos no arquivo com o auxílio da Classe Elemento.
 	```java
