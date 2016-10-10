@@ -1,21 +1,27 @@
-# ARQ_Hash
+# Hash_Project
 
 Trabalho para a matéria Organização de Estrutura de Arquivos do Bacharelado em Ciência da Computação no CEFET/RJ, ministrada pelo professor Renato Mauro.
 
 ##O Trabalho
 
-* O trabalho consiste na criação de um índice, gerado a partir de uma função hash, para o a arquivo cep.dat, cedido pelo professor Renato. 
-* Após a criação do índice devemos efetuar buscas de ceps nele e exibirmos os dados completos daquele cep, oriundos do arquivo original.
-* O programa também exibe informações sobre o hash, tal como: 
+* O trabalho consiste na criação de um Hash Table(Tabela de Dispersão), gerado a partir de uma função hash, para o a arquivo cep.dat, cedido pelo professor Renato. 
+* Além de criar a tabela, o programa também deverá efetuar buscas dos ceps contindos no arquivo cep.dat, exibindo os dados completos do cep correnpondente.
+* O programa também exibe informações estatísticas sobre o hash, tal como: 
     * Número de colisões
+    * Colisões por posição da tabela
+    * Posições vazias da tabela
+    * Load Factor
     * Média de passos para achar um cep
     * Probabilidades
 
+* Com essas informações, além de se ter uma melhor compreenção dos mecânismos envolvendo a implementação e uso da tabela, também será realizado uma análise da eficácia e conveniência de uso do hash table.
+* Java foi a linguagem de programação escolhida para realizar esse trabalho.
+
 ##Código
 
-* O Programa é divido em 4 arquivos, sendo 2 deles para auxílio na leitura e escrita dos arquivos.
+* O Programa é divido em 4 classes, sendo 2 delas para auxílio na leitura e escrita dos arquivos.
 
-  * O arquivo Endereco.java, cedido pelo professor Renato, é utilizado na leitura do arquivo binário cep.dat.
+  * O arquivo Endereco.java, cedido pelo professor Renato, é utilizado na leitura do arquivo cep.dat.
 
   * O arquivo Elemento.java é utilizado na leitura e na escrita do arquivo índice.
   
