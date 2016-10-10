@@ -73,7 +73,7 @@ Trabalho para a matéria Organização de Estrutura de Arquivos do Bacharelado e
 	Um arquivo é criado apartir da classe ElementoHash, que tem como atributos: cep, endereco e proximo. O endereco é a posição 		do cep no arquivo cep.dat e o proximo e um ponteiro para o proximo Elemento, caso haja colisão. Ao final de sua execução,
 	teremos uma tabela vazia em disco.
 	
- * O próximo método a ser chamado pelo main, criaHash(RandomAccessFile f, RandomAccessFile r, long n),  é responsável por realizar a leitura dos ceps em disco, e o processo de dispersão dos elementos pela tabela, nesse caso os ceps. 
+ * O próximo método a ser chamado pelo main, criaHash(RandomAccessFile f, RandomAccessFile r, long n),  é responsável por realizar a leitura dos ceps em disco e dispersar os elementos pela tabela, nesse caso os ceps. 
     ```java
     	public static void criaHash(RandomAccessFile c, RandomAccessFile h, long tamanho) throws IOException{
 		System.out.println("Criando Hash...");
@@ -263,3 +263,33 @@ Trabalho para a matéria Organização de Estrutura de Arquivos do Bacharelado e
 			System.out.println("Número de Colisões: " + colisoesTotal);	
 		}
 	```
+##Análise
+
+* Ao executarmos o método main do código teremos no console os seguintes dados:
+   * Número de posições vazia no hash: 502464
+   * Load Factor: 0,442
+   * Número máximo de colisões em um mesmo índice: 14
+   * A média de passos de busca é: 1,747
+   * Existem 224431 campos com 0 colisões - Probabilidade em busca: 0,564554
+   * Existem 101779 campos com 1 colisões - Probabilidade em busca: 0,256024
+   * Existem 39773 campos com 2 colisões - Probabilidade em busca: 0,100049
+   * Existem 17824 campos com 3 colisões - Probabilidade em busca: 0,044836
+   * Existem 7301 campos com 4 colisões - Probabilidade em busca: 0,018366
+   * Existem 3464 campos com 5 colisões - Probabilidade em busca: 0,008714
+   * Existem 1537 campos com 6 colisões - Probabilidade em busca: 0,003866
+   * Existem 755 campos com 7 colisões - Probabilidade em busca: 0,001899
+   * Existem 350 campos com 8 colisões - Probabilidade em busca: 0,000880
+   * Existem 173 campos com 9 colisões - Probabilidade em busca: 0,000435
+   * Existem 95 campos com 10 colisões - Probabilidade em busca: 0,000239
+   * Existem 34 campos com 11 colisões - Probabilidade em busca: 0,000086
+   * Existem 14 campos com 12 colisões - Probabilidade em busca: 0,000035
+   * Existem 5 campos com 13 colisões - Probabilidade em busca: 0,000013
+   * Existem 2 campos com 14 colisões - Probabilidade em busca: 0,000005
+   * Número de Colisões: 301770
+   
+ 	Podemos observar que nossa função de hash nos gerou um hash com um Load Factor (qtdEntradasNoHash/tamanhoHash) de 44,2% e um número total de colisões de 301770. Longe de ser um hash perfeito, nosso hash ainda assim chegou a uma média de passos de busca de 1,747. Isso nos mostra o quão eficiente um hash pode ser. Ter uma média de passos de busca constante e que, dependendo da função e do tratamento de colisões, fica em torno de 1 a 2 passos é uma das maiores qualidades do hash table.
+	Obervando as probabilidades de busca para cada campo e seu número de colisões, podemos entender melhor o por quê dessa média de passos. Campos com 0 colisões tem uma probabilidade chegão a 56,46%, essa probabilidade caí mais do que a metade quando incrementamos o número de colisões, para 25,60%. Vemos esse comportamento se repetindo conforme continuamos a incrementrar o número de colisões, até chegarmos ao pior caso possível de busca; com 14 colisões a probabilidade fica em 0,0005%. As probabilidades de realizarmos uma busca em menores números de passos são muito mais significativas do que as probabilidades para maiores números de passos.
+
+##Conclusões
+
+	O hash table é uma estrutura com ótima eficiência de busca. Sua implementação no entanto pode ser problemática e exige um bom trabalho de depuração para tratar as colisões, o que demanda mais tempo no seu desenvolvimento do que em outras estruturas. Uma boa função de hash pode amenizar esses problemas, porém uma análise para obter uma boa função por si só é um grande trabalho que envolve muita estatística e análise do caso em específico, além de muito conhecimento de estruturas e técnicas para implementação da mesma.
